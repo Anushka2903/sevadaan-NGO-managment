@@ -8,6 +8,57 @@ import { AuthRequest } from '../middleware/authMiddleware';
 import { uploadToStorage } from '../services/uploadService';
 import logger from '../utils/logger';
 
+const mockNGOs = [
+  {
+    _id: 'mock-ngo-1',
+    name: 'Care Foundation',
+    logo: '/images/ngos/care-foundation.png',
+    description: 'Supporting education, healthcare, and community welfare programs.',
+    mission: 'Make essential services accessible to underserved communities.',
+    address: 'Community Center Road',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    contactEmail: 'hello@carefoundation.example',
+    contactPhone: '+91 98765 43210',
+    website: 'https://carefoundation.example',
+    status: 'verified',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    _id: 'mock-ngo-2',
+    name: 'Hope Initiative',
+    logo: '/images/ngos/hope-initiative.png',
+    description: 'Delivering food support, skill training, and emergency assistance.',
+    mission: 'Build resilient communities through practical support.',
+    address: 'Hope Street',
+    city: 'Delhi',
+    state: 'Delhi',
+    contactEmail: 'team@hopeinitiative.example',
+    contactPhone: '+91 98765 43211',
+    website: 'https://hopeinitiative.example',
+    status: 'verified',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    _id: 'mock-ngo-3',
+    name: 'Green Earth Foundation',
+    logo: '/images/ngos/green-earth.png',
+    description: 'Working on tree plantation, clean-up drives, and climate awareness.',
+    mission: 'Protect local ecosystems through community action.',
+    address: 'Eco Park',
+    city: 'Bengaluru',
+    state: 'Karnataka',
+    contactEmail: 'contact@greenearth.example',
+    contactPhone: '+91 98765 43212',
+    website: 'https://greenearth.example',
+    status: 'verified',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+];
+
 // @desc    Get all NGOs
 // @route   GET /api/v1/ngos
 // @access  Public
@@ -17,60 +68,11 @@ export const getNGOs = asyncHandler(async (req: Request, res: Response) => {
   const offset = (page - 1) * limit;
 
   if (mongoose.connection.readyState !== 1) {
-    const mockNGOs = [
-      {
-        _id: 'mock-ngo-1',
-        name: 'Care Foundation',
-        logo: '/images/ngos/care-foundation.png',
-        description: 'Supporting education, healthcare, and community welfare programs.',
-        mission: 'Make essential services accessible to underserved communities.',
-        address: 'Community Center Road',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        contactEmail: 'hello@carefoundation.example',
-        contactPhone: '+91 98765 43210',
-        website: 'https://carefoundation.example',
-        status: 'verified',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        _id: 'mock-ngo-2',
-        name: 'Hope Initiative',
-        logo: '/images/ngos/hope-initiative.png',
-        description: 'Delivering food support, skill training, and emergency assistance.',
-        mission: 'Build resilient communities through practical support.',
-        address: 'Hope Street',
-        city: 'Delhi',
-        state: 'Delhi',
-        contactEmail: 'team@hopeinitiative.example',
-        contactPhone: '+91 98765 43211',
-        website: 'https://hopeinitiative.example',
-        status: 'verified',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        _id: 'mock-ngo-3',
-        name: 'Green Earth Foundation',
-        logo: '/images/ngos/green-earth.png',
-        description: 'Working on tree plantation, clean-up drives, and climate awareness.',
-        mission: 'Protect local ecosystems through community action.',
-        address: 'Eco Park',
-        city: 'Bengaluru',
-        state: 'Karnataka',
-        contactEmail: 'contact@greenearth.example',
-        contactPhone: '+91 98765 43212',
-        website: 'https://greenearth.example',
-        status: 'verified',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    ].slice(offset, offset + limit);
+    const pagedMockNGOs = mockNGOs.slice(offset, offset + limit);
 
     res.json({
       success: true,
-      data: mockNGOs,
+      data: pagedMockNGOs,
       pagination: {
         total: 3,
         page,
@@ -114,6 +116,22 @@ export const getNGOs = asyncHandler(async (req: Request, res: Response) => {
       .skip(offset)
       .limit(limit)
       .sort({ createdAt: -1 });
+
+    if (total === 0) {
+      const pagedMockNGOs = mockNGOs.slice(offset, offset + limit);
+      res.json({
+        success: true,
+        data: pagedMockNGOs,
+        pagination: {
+          total: mockNGOs.length,
+          page,
+          limit,
+          pages: Math.ceil(mockNGOs.length / limit)
+        },
+        message: 'NGOs retrieved successfully (demo data - database is empty)'
+      });
+      return;
+    }
 
     res.json({
       success: true,

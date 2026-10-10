@@ -9,6 +9,57 @@ import { SocketService } from '../socket/socketService';
 import { VolunteerSocketData } from '../socket/socketTypes';
 import notificationService from '../services/notificationService';
 
+const mockVolunteerOpportunities = [
+  {
+    id: 'mock-volunteer-1',
+    title: 'Weekend Teaching Support',
+    description: 'Help children with basic mathematics and reading practice.',
+    category: 'Education',
+    location: { city: 'Mumbai', state: 'Maharashtra' },
+    startDate: new Date().toISOString(),
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    volunteersNeeded: 20,
+    volunteersRegistered: 8,
+    availableSpots: 12,
+    requirements: ['Teaching interest', 'Weekend availability'],
+    tags: ['education', 'children'],
+    ngo: { _id: 'mock-ngo-1', name: 'Care Foundation', logo: '/images/ngos/care-foundation.png' },
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'mock-volunteer-2',
+    title: 'Community Food Drive',
+    description: 'Assist with packing and distributing food kits to families.',
+    category: 'Food',
+    location: { city: 'Delhi', state: 'Delhi' },
+    startDate: new Date().toISOString(),
+    endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    volunteersNeeded: 15,
+    volunteersRegistered: 5,
+    availableSpots: 10,
+    requirements: ['Field coordination', 'Basic logistics'],
+    tags: ['food', 'community'],
+    ngo: { _id: 'mock-ngo-2', name: 'Hope Initiative', logo: '/images/ngos/hope-initiative.png' },
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'mock-volunteer-3',
+    title: 'Tree Plantation Drive',
+    description: 'Join a local clean-up and tree plantation event.',
+    category: 'Environment',
+    location: { city: 'Bengaluru', state: 'Karnataka' },
+    startDate: new Date().toISOString(),
+    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    volunteersNeeded: 30,
+    volunteersRegistered: 18,
+    availableSpots: 12,
+    requirements: ['Outdoor activity', 'Environmental interest'],
+    tags: ['environment', 'cleanup'],
+    ngo: { _id: 'mock-ngo-3', name: 'Green Earth Foundation', logo: '/images/ngos/green-earth.png' },
+    createdAt: new Date().toISOString()
+  }
+];
+
 // Apply for volunteer position
 export const applyVolunteer = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -884,6 +935,24 @@ export const getVolunteerOpportunities = async (req: Request, res: Response): Pr
       ngo: program.ngo,
       createdAt: program.createdAt
     }));
+
+    if (total === 0) {
+      const mockOpportunities = mockVolunteerOpportunities.slice(skip, skip + limitNum);
+      res.json({
+        success: true,
+        data: mockOpportunities,
+        pagination: {
+          currentPage: pageNum,
+          totalPages: Math.ceil(mockVolunteerOpportunities.length / limitNum),
+          totalItems: mockVolunteerOpportunities.length,
+          itemsPerPage: limitNum,
+          hasNextPage: pageNum < Math.ceil(mockVolunteerOpportunities.length / limitNum),
+          hasPrevPage: pageNum > 1
+        },
+        message: 'Volunteer opportunities retrieved successfully (demo data - database is empty)'
+      });
+      return;
+    }
 
     res.json({
       success: true,

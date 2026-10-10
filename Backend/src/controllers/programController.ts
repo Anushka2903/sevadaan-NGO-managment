@@ -245,7 +245,27 @@ export const getPrograms = async (req: Request, res: Response): Promise<void> =>
           .limit(limitNum)
           .lean(),
         Program.countDocuments(query)
-      ]);      res.json({
+      ]);
+
+      if (total === 0) {
+        const demoPrograms = mockPrograms.slice(skip, skip + limitNum);
+        res.json({
+          success: true,
+          data: demoPrograms,
+          pagination: {
+            currentPage: pageNum,
+            totalPages: Math.ceil(mockPrograms.length / limitNum),
+            totalItems: mockPrograms.length,
+            itemsPerPage: limitNum,
+            hasNextPage: pageNum < Math.ceil(mockPrograms.length / limitNum),
+            hasPrevPage: pageNum > 1
+          },
+          message: 'Programs retrieved successfully (demo data - database is empty)'
+        });
+        return;
+      }
+
+      res.json({
         success: true,
         data: programs || [], // Ensure data is always at least an empty array
         pagination: {
